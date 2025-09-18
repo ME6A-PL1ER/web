@@ -1,79 +1,106 @@
-# Starbound Defender
+# Physics Engine Playground
 
-Starbound Defender is an arcade-inspired space survival game built entirely with HTML, CSS, and vanilla JavaScript. Dodge asteroids, repel marauding raiders, and unleash devastating nova blasts to climb the scoreboard. The project ships with an Nginx configuration and a lightweight Alpine-based Docker image so it can be deployed as a drop-in static site.
+A full-stack physics sandbox featuring a pure Python simulation core served via FastAPI and an interactive React interface. The
+project is engineered for portability (including Alpine Linux) by relying on standard-library numerics instead of compiled
+extensions.
 
-## Gameplay highlights
+## Features
 
-- **Responsive canvas action** – Smooth 60 FPS animation with adaptive controls for desktop and touch devices.
-- **Dynamic enemy waves** – Asteroids and raider ships scale in speed and density as your score increases.
-- **Combo-driven scoring** – Chain eliminations to increase your multiplier and supercharge the nova gauge.
-- **Power ups & boosts** – Collect shield repairs and instant novas, use boosters to dodge incoming fire, and watch energy levels.
-- **Web audio effects** – Toggleable synthesized sound effects for lasers, explosions, and power-ups.
+- **FastAPI backend** with analytical solvers (projectile motion, damped oscillators) and a configurable multi-body simulation
+  engine that supports Runge–Kutta 4 or Euler integration.
+- **Pure Python physics core** implementing vectors, forces (gravity, drag, springs, constant thrust) and an energy monitor so it
+  can run without native extensions.
+- **React + Vite frontend** providing rich forms, live charts rendered with SVG, and tabular inspection of multi-step simulation
+  output.
+- **Configurable API base URL** via the `VITE_API_URL` environment variable to point the UI at remote FastAPI deployments.
 
-## Controls
+## Getting started
 
-| Action          | Desktop                                        | Mobile/touch                                      |
-| --------------- | ---------------------------------------------- | ------------------------------------------------- |
-| Move            | Arrow keys or WASD                             | Drag the virtual joystick                         |
-| Fire            | Space bar                                      | Tap the **Fire** button                           |
-| Boost           | Hold either Shift key                          | Drag the joystick further from the center         |
-| Nova blast      | Build the gold meter to 100%, then tap fire    | Same as desktop (requires a fresh fire tap)       |
-| Pause/Restart   | Click the on-screen buttons                    | Tap the on-screen buttons                         |
+### Requirements
 
-> Tip: nova blasts clear the entire screen—save them for overwhelming waves!
+- Python 3.11+
+- Node.js 18+
 
-## Running locally
-
-The game is a static site. You can open `public/index.html` directly in a browser, but for the best experience (fonts, audio, caching) run a tiny static server:
+### Backend setup
 
 ```bash
-# from the repository root
-yarn global add serve # or npm install --global serve
-serve public
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-Then browse to `http://localhost:3000` (the default port for `serve`).
+The API listens on `http://127.0.0.1:8000` by default. Documentation is auto-generated at `http://127.0.0.1:8000/docs`.
 
-## Deploying with Nginx on Alpine Linux
-
-A production-ready configuration is included for a minimal Alpine footprint.
-
-### 1. Build the Docker image
+### Frontend setup
 
 ```bash
-# From the repository root
-docker build -t starbound-defender .
+cd frontend
+npm install
+npm run dev
 ```
 
-The image uses [`nginx:1.25-alpine`](https://hub.docker.com/_/nginx) as the base and copies the static assets into `/usr/share/nginx/html`.
+The Vite dev server starts on port `5173`. During development it proxies API calls directly to the backend URL defined in
+`VITE_API_URL` (defaults to `http://localhost:8000/api/v1`).
 
-### 2. Run the container
+## API overview
 
-```bash
-docker run --rm -p 8080:80 starbound-defender
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/v1/health` | Service health check. |
+| `POST /api/v1/projectile/solve` | Analytical projectile solver returning trajectory samples, range, and maximum height. |
+| `POST /api/v1/oscillator/solve` | Damped harmonic oscillator solution sampled over time. |
+| `POST /api/v1/simulation/run` | Numerical simulation for any number of rigid bodies with drag, thrust, and gravity. |
+
+Example payload for the simulation runner:
+
+```json
+{
+  "timestep": 0.02,
+  "method": "rk4",
+  "gravity": [0, -9.80665, 0],
+  "steps": 200,
+  "bodies": [
+    {
+      "identifier": "projectile",
+      "mass": 1,
+      "position": [0, 0, 0],
+      "velocity": [8, 14, 0],
+      "forces": [
+        { "type": "drag", "coefficient": 0.2 },
+        { "type": "constant", "vector": [0, 0, 0] }
+      ]
+    }
+  ]
+}
 ```
 
-Navigate to `http://localhost:8080` to play.
+## Alpine Linux compatibility
 
-### 3. Deploy on bare Alpine + Nginx
-
-If you already have an Alpine server with Nginx installed:
-
-1. Copy the contents of `public/` to `/usr/share/nginx/html/` (or your preferred `root`).
-2. Replace `/etc/nginx/conf.d/default.conf` with the provided `nginx.conf`.
-3. Reload Nginx: `sudo nginx -s reload`.
-
-The supplied configuration enables gzip compression, sets sensible caching headers for static assets, and routes unknown paths back to `index.html` (useful for future SPA routing).
+The backend uses only pure-Python dependencies (FastAPI, Pydantic, Uvicorn) and the physics engine avoids NumPy or SciPy. This
+makes it straightforward to deploy on Alpine-based images or minimal environments without a full build toolchain.
 
 ## Project structure
 
 ```
-├── Dockerfile              # Alpine + Nginx deployment image
-├── nginx.conf              # Server configuration tuned for static assets
-└── public
-    ├── game.js             # Game logic and rendering loop
-    ├── index.html          # Markup and UI overlays
-    └── styles.css          # Visual design and responsive layout
+backend/
+  app/
+    api/v1/endpoints/    # FastAPI routers
+    main.py              # ASGI application factory
+  physics/               # Vector math, forces, analytics, simulation core
+  requirements.txt
+frontend/
+  src/
+    components/          # React UI building blocks
+    hooks/               # Shared frontend utilities
+    App.jsx, main.jsx
+  index.html
+  package.json
+README.md
 ```
 
-Enjoy defending the frontier! Contributions and enhancements are welcome—feel free to fork and expand the universe.
+## Testing
+
+Run unit tests (if added) with `pytest` inside the backend virtual environment. The frontend uses Vite’s development server and
+can be verified with `npm run build`.
