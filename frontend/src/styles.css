@@ -1,0 +1,263 @@
+:root {
+  color-scheme: light dark;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.hero h1 {
+  font-size: 2.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  margin: 0 auto 1rem;
+  max-width: 720px;
+}
+
+.primary {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+  color: #0f172a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+}
+
+.card__header h2 {
+  margin: 0 0 0.5rem;
+}
+
+.card__description {
+  margin: 0 0 1.5rem;
+  color: #cbd5f5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.form input,
+.form select {
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.95);
+  color: inherit;
+}
+
+.form button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #22d3ee, #6366f1);
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.error {
+  color: #fda4af;
+  font-weight: 600;
+}
+
+.plot {
+  background: rgba(15, 23, 42, 0.75);
+  border-radius: 16px;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.plot h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.plot__background {
+  fill: rgba(51, 65, 85, 0.35);
+  stroke: rgba(148, 163, 184, 0.3);
+  stroke-width: 1;
+}
+
+.plot__line {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 2.5;
+}
+
+.plot__tick {
+  stroke: rgba(148, 163, 184, 0.3);
+  stroke-width: 1;
+}
+
+.plot__tick-label {
+  fill: rgba(226, 232, 240, 0.8);
+  font-size: 0.7rem;
+}
+
+.plot__axis {
+  fill: rgba(226, 232, 240, 0.8);
+  font-size: 0.75rem;
+}
+
+.empty {
+  margin: 1rem 0;
+  color: rgba(226, 232, 240, 0.6);
+}
+
+.simulation {
+  display: grid;
+  gap: 2rem;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.grid-three {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
+}
+
+.body-card {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 14px;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.body-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.body-header h4 {
+  margin: 0;
+}
+
+.ghost {
+  background: transparent;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.results {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.result-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+td,
+th {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  text-align: left;
+}
+
+footer {
+  margin-top: 3rem;
+  text-align: center;
+  color: rgba(226, 232, 240, 0.7);
+}
+
+footer code {
+  background: rgba(15, 23, 42, 0.9);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+
+@media (max-width: 720px) {
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+}
