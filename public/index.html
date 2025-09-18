@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Starbound Defender</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;500;700&family=Space+Grotesk:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="hud" role="banner">
+        <div class="title">
+          <h1>Starbound Defender</h1>
+          <p class="tagline">Hold the line against waves of cosmic threats.</p>
+        </div>
+        <div class="stats" role="status" aria-live="polite">
+          <div>Score: <span id="score">0</span></div>
+          <div>Level: <span id="level">1</span></div>
+          <div>Shields: <span id="shields">100%</span></div>
+        </div>
+      </header>
+
+      <section class="canvas-wrapper" aria-label="Interactive space battle">
+        <canvas id="gameCanvas" width="960" height="540"></canvas>
+        <div class="overlay" id="startOverlay">
+          <div class="panel">
+            <h2>Defend the frontier</h2>
+            <p>
+              Pilot your starfighter with the arrow keys or WASD. Press the spacebar (or tap
+              fire) to launch plasma bolts. Survive as long as possible, rake in points, and
+              climb to higher threat levels!
+            </p>
+            <ul>
+              <li>Use boosters to dodge asteroids and marauders.</li>
+              <li>Chain hits to charge powerful nova blasts.</li>
+              <li>Collect energy orbs for shield repairs.</li>
+            </ul>
+            <button id="startButton" class="primary">Start Mission</button>
+          </div>
+        </div>
+        <div class="overlay" id="gameOverOverlay" hidden>
+          <div class="panel">
+            <h2>Mission Failed</h2>
+            <p id="finalScore"></p>
+            <p id="bestScore"></p>
+            <button id="restartButton" class="primary">Retry</button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="controls" role="contentinfo">
+        <div class="legend">
+          <p><strong>Desktop:</strong> WASD / Arrow keys to move · Space to fire · Shift to boost</p>
+          <p><strong>Mobile:</strong> Use the virtual joystick and fire button below.</p>
+        </div>
+      </footer>
+
+      <button id="audioToggle" class="audio-toggle" aria-pressed="false">🔇 Sound Off</button>
+      <div class="touch-controls" aria-hidden="true">
+        <div class="joystick" id="joystick">
+          <div class="stick"></div>
+        </div>
+        <button id="touchFire" class="touch-fire">Fire</button>
+      </div>
+    </main>
+
+    <script type="module" src="game.js"></script>
+  </body>
+</html>
