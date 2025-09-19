@@ -1,11 +1,10 @@
 # Docker Compose for local development
-version: '3.8'
-
 services:
   # Backend API service
   physics-api:
-    build: 
-      context: .
+    build:
+      context: ${COMPOSE_PROJECT_DIR:-.}
+      dockerfile: Dockerfile
       target: backend
     ports:
       - "8000:8000"
