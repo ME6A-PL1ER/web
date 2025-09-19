@@ -58,6 +58,25 @@ class SpringForce:
 
 
 @dataclass
+class FrictionForce:
+    """Static and kinetic friction force."""
+    coefficient_static: float = 0.8
+    coefficient_kinetic: float = 0.6
+    normal_force_magnitude: float = 9.81  # Assumes gravity on horizontal surface
+    
+    def compute(self, body: "Body") -> Vector3:
+        velocity = body.velocity
+        speed = velocity.magnitude()
+        
+        if speed == 0:
+            return ZERO_VECTOR
+            
+        # Kinetic friction opposes motion
+        friction_magnitude = self.coefficient_kinetic * self.normal_force_magnitude * body.mass
+        return velocity.normalize() * (-friction_magnitude)
+
+
+@dataclass
 class CustomForce:
     func: Callable[["Body"], Vector3]
 
@@ -71,5 +90,6 @@ __all__ = [
     "GravityForce",
     "DragForce",
     "SpringForce",
+    "FrictionForce",
     "CustomForce",
 ]

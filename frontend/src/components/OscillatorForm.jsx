@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import TrajectoryPlot from './TrajectoryPlot.jsx';
+import EnhancedTrajectoryPlot from './EnhancedTrajectoryPlot.jsx';
 import { useApiBase } from '../hooks/useApiBase.js';
 
 const defaultResult = {
@@ -104,11 +104,13 @@ const OscillatorForm = () => {
           <div><strong>Period:</strong> {Number.isFinite(result.period) ? result.period.toFixed(3) : '∞'} s</div>
         </div>
       </form>
-      <TrajectoryPlot
+      <EnhancedTrajectoryPlot
         title="Displacement over time"
         points={dataPoints}
         xLabel="Time (s)"
         yLabel="Displacement (m)"
+        enableInteraction={true}
+        enableExport={true}
       />
     </div>
   );

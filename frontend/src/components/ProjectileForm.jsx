@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import TrajectoryPlot from './TrajectoryPlot.jsx';
+import EnhancedTrajectoryPlot from './EnhancedTrajectoryPlot.jsx';
 import { useApiBase } from '../hooks/useApiBase.js';
 
 const defaultResult = {
@@ -126,12 +126,14 @@ const ProjectileForm = () => {
           <div><strong>Range:</strong> {result.range.toFixed(2)} m</div>
         </div>
       </form>
-      <TrajectoryPlot
+      <EnhancedTrajectoryPlot
         title="Trajectory"
         points={trajectoryPoints}
         xLabel="Horizontal position (m)"
         yLabel="Vertical position (m)"
         aspect="wide"
+        enableInteraction={true}
+        enableExport={true}
       />
     </div>
   );

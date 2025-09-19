@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import TrajectoryPlot from './TrajectoryPlot.jsx';
+import EnhancedTrajectoryPlot from './EnhancedTrajectoryPlot.jsx';
 import { useApiBase } from '../hooks/useApiBase.js';
 
 const defaultBenchmarkSettings = {
@@ -195,25 +195,29 @@ const BenchmarkRunner = () => {
           <div className="result-grid">
             {/* Performance vs Steps for different body counts */}
             {Object.entries(chartData.bodyCountData).map(([bodyCount, points]) => (
-              <TrajectoryPlot
+              <EnhancedTrajectoryPlot
                 key={`bodies-${bodyCount}`}
                 title={`Performance vs Steps (${bodyCount} bodies)`}
                 points={points.sort((a, b) => a.x - b.x)}
                 xLabel="Number of Steps"
                 yLabel="Execution Time (ms)"
                 aspect="wide"
+                enableInteraction={true}
+                enableExport={true}
               />
             ))}
             
             {/* Performance vs Bodies for different step counts */}
             {Object.entries(chartData.stepCountData).map(([stepCount, points]) => (
-              <TrajectoryPlot
+              <EnhancedTrajectoryPlot
                 key={`steps-${stepCount}`}
                 title={`Performance vs Bodies (${stepCount} steps)`}
                 points={points.sort((a, b) => a.x - b.x)}
                 xLabel="Number of Bodies"
                 yLabel="Execution Time (ms)"
                 aspect="wide"
+                enableInteraction={true}
+                enableExport={true}
               />
             ))}
           </div>

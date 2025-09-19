@@ -19,6 +19,7 @@ class Body:
     velocity: Vector3
     radius: float = 1.0
     restitution: float = 0.5
+    friction: float = 0.0
     forces: List["Force"] = field(default_factory=list)
 
     def net_force(self) -> Vector3:
