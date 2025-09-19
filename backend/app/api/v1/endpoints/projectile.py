@@ -4,7 +4,7 @@ from math import radians
 from typing import List
 
 from fastapi import APIRouter
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from physics.analytics import projectile_motion
 
@@ -18,7 +18,8 @@ class ProjectileRequest(BaseModel):
     gravity: float = Field(9.80665, gt=0, description="Acceleration due to gravity in m/s^2")
     samples: int = Field(50, ge=2, le=5000)
 
-    @validator("launch_angle")
+    @field_validator("launch_angle")
+    @classmethod
     def validate_angle(cls, value: float) -> float:
         if not 0 <= value <= 180:
             raise ValueError("Launch angle must be between 0 and 180 degrees")
