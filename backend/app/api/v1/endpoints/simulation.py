@@ -5,14 +5,14 @@ from typing import List, Literal, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel, Field, validator
 
-from ....physics.simulations import Simulation, SimulationResult, create_body
-from ....physics.vector import Vector3
+from physics.simulations import Simulation, SimulationResult, create_body
+from physics.vector import Vector3
 
 router = APIRouter(prefix="/simulation", tags=["simulation"])
 
 
 class ForcePayload(BaseModel):
-    type: Literal["constant", "gravity", "drag", "spring"] = "constant"
+    type: Literal["constant", "gravity", "drag", "spring", "friction"] = "constant"
     vector: Optional[List[float]] = None
     direction: Optional[List[float]] = None
     coefficient: Optional[float] = None
@@ -21,6 +21,9 @@ class ForcePayload(BaseModel):
     anchor: Optional[List[float]] = None
     stiffness: Optional[float] = None
     damping: Optional[float] = None
+    coefficient_static: Optional[float] = None
+    coefficient_kinetic: Optional[float] = None
+    normal_force_magnitude: Optional[float] = None
 
 
 class BodyPayload(BaseModel):
@@ -29,6 +32,9 @@ class BodyPayload(BaseModel):
     position: List[float] = Field(..., min_items=2, max_items=3)
     velocity: List[float] = Field(..., min_items=2, max_items=3)
     forces: Optional[List[ForcePayload]] = None
+    radius: float = Field(default=1.0, gt=0)
+    restitution: float = Field(default=0.5, ge=0, le=1)
+    friction: float = Field(default=0.0, ge=0)
 
     @validator("identifier")
     def validate_identifier(cls, value: str) -> str:
@@ -43,6 +49,7 @@ class SimulationRequest(BaseModel):
     gravity: List[float] = Field(default_factory=lambda: [0.0, -9.80665, 0.0])
     steps: int = Field(..., gt=0, le=10000)
     bodies: List[BodyPayload]
+    enable_collisions: bool = Field(default=False)
 
     @validator("bodies")
     def validate_bodies(cls, value: List[BodyPayload]) -> List[BodyPayload]:
@@ -61,6 +68,7 @@ class SimulationResponse(BaseModel):
     total_time: float
     steps: List[List[SimulationStep]]
     energy_profile: List[float]
+    collision_count: int = 0
 
 
 def _serialize_result(result: SimulationResult) -> SimulationResponse:
@@ -72,12 +80,21 @@ def _serialize_result(result: SimulationResult) -> SimulationResponse:
                 for identifier, data in sorted(snapshot.items())
             ]
         )
-    return SimulationResponse(total_time=result.total_time, steps=steps, energy_profile=result.conserved_energy)
+    return SimulationResponse(
+        total_time=result.total_time, 
+        steps=steps, 
+        energy_profile=result.conserved_energy,
+        collision_count=result.collision_count
+    )
 
 
 @router.post("/run", response_model=SimulationResponse)
 def run_simulation(payload: SimulationRequest) -> SimulationResponse:
-    simulation = Simulation(timestep=payload.timestep, method=payload.method)
+    simulation = Simulation(
+        timestep=payload.timestep, 
+        method=payload.method,
+        enable_collisions=payload.enable_collisions
+    )
     simulation.gravity = Vector3.from_iterable(payload.gravity)
 
     for body_payload in payload.bodies:
@@ -88,6 +105,9 @@ def run_simulation(payload: SimulationRequest) -> SimulationResponse:
             position=body_payload.position,
             velocity=body_payload.velocity,
             forces=forces,
+            radius=body_payload.radius,
+            restitution=body_payload.restitution,
+            friction=body_payload.friction,
         )
         simulation.add_body(body)
 

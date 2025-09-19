@@ -3,6 +3,7 @@ import SectionCard from './components/SectionCard.jsx';
 import ProjectileForm from './components/ProjectileForm.jsx';
 import OscillatorForm from './components/OscillatorForm.jsx';
 import SimulationRunner from './components/SimulationRunner.jsx';
+import BenchmarkRunner from './components/BenchmarkRunner.jsx';
 
 const App = () => {
   return (
@@ -39,6 +40,13 @@ const App = () => {
           description="Run RK4 or Euler integration on multiple rigid bodies with drag and thrust forces."
         >
           <SimulationRunner />
+        </SectionCard>
+
+        <SectionCard
+          title="Performance benchmarking"
+          description="Test simulation performance across different body counts and time steps to understand scaling limits."
+        >
+          <BenchmarkRunner />
         </SectionCard>
       </main>
 

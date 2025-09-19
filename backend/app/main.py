@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.v1.endpoints import health, oscillator, projectile, simulation
+from .api.v1.endpoints import benchmark, health, oscillator, projectile, simulation
 
 
 def create_app() -> FastAPI:
@@ -22,6 +22,7 @@ def create_app() -> FastAPI:
     app.include_router(projectile.router, prefix=api_prefix)
     app.include_router(oscillator.router, prefix=api_prefix)
     app.include_router(simulation.router, prefix=api_prefix)
+    app.include_router(benchmark.router, prefix=api_prefix)
 
     return app
 

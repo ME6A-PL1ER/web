@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Optional
 
 from .bodies import Body, BodyRegistry
+from .collisions import CollisionDetector, CollisionResolver
+from .constraints import ConstraintSolver
 from .forces import ConstantForce, GravityForce
 from .integrators import euler_step, rk4_step
 from .vector import Vector3
@@ -14,6 +16,7 @@ class SimulationResult:
     steps: List[Dict[str, dict]]
     total_time: float
     conserved_energy: List[float]
+    collision_count: int = 0
 
 
 @dataclass
@@ -22,6 +25,8 @@ class Simulation:
     method: str = "rk4"
     gravity: Vector3 = Vector3(0.0, -9.80665, 0.0)
     bodies: BodyRegistry = field(default_factory=BodyRegistry)
+    enable_collisions: bool = False
+    constraint_solver: ConstraintSolver = field(default_factory=ConstraintSolver)
 
     def add_body(self, body: Body) -> None:
         if not body.forces:
@@ -35,6 +40,7 @@ class Simulation:
     def step(self, steps: int) -> SimulationResult:
         history: List[Dict[str, dict]] = []
         energy_history: List[float] = []
+        total_collision_count = 0
 
         for _ in range(steps):
             snapshot: Dict[str, dict] = {}
@@ -62,6 +68,21 @@ class Simulation:
                 body.position = new_position
                 body.velocity = new_velocity
 
+            # Handle collisions if enabled
+            if self.enable_collisions:
+                collisions = CollisionDetector.detect_all_collisions(self.bodies.all())
+                total_collision_count += len(collisions)
+                
+                for collision in collisions:
+                    body1 = self.bodies.get(collision.body1_id)
+                    body2 = self.bodies.get(collision.body2_id)
+                    CollisionResolver.resolve_collision(collision, body1, body2, self.timestep)
+
+            # Apply constraints
+            self.constraint_solver.solve(self.bodies, self.timestep, iterations=2)
+
+            # Calculate energy and create snapshot
+            for body in self.bodies.all():
                 kinetic = 0.5 * body.mass * (body.velocity.magnitude() ** 2)
                 potential = -body.mass * self.gravity.dot(body.position)
                 total_energy += kinetic + potential
@@ -74,7 +95,12 @@ class Simulation:
             history.append(snapshot)
             energy_history.append(total_energy)
 
-        return SimulationResult(steps=history, total_time=steps * self.timestep, conserved_energy=energy_history)
+        return SimulationResult(
+            steps=history, 
+            total_time=steps * self.timestep, 
+            conserved_energy=energy_history,
+            collision_count=total_collision_count
+        )
 
 
 def create_body(
@@ -83,12 +109,18 @@ def create_body(
     position: Iterable[float],
     velocity: Iterable[float],
     forces: Optional[List[dict]] = None,
+    radius: float = 1.0,
+    restitution: float = 0.5,
+    friction: float = 0.0,
 ) -> Body:
     body = Body(
         identifier=identifier,
         mass=mass,
         position=Vector3.from_iterable(position),
         velocity=Vector3.from_iterable(velocity),
+        radius=radius,
+        restitution=restitution,
+        friction=friction,
     )
 
     if forces:
@@ -118,6 +150,16 @@ def create_body(
                         anchor=Vector3.from_iterable(force_data.get("anchor", [0, 0, 0])),
                         stiffness=float(force_data.get("stiffness", 10.0)),
                         damping=float(force_data.get("damping", 0.0)),
+                    )
+                )
+            elif kind == "friction":
+                from .forces import FrictionForce
+
+                body.add_force(
+                    FrictionForce(
+                        coefficient_static=float(force_data.get("coefficient_static", 0.8)),
+                        coefficient_kinetic=float(force_data.get("coefficient_kinetic", 0.6)),
+                        normal_force_magnitude=float(force_data.get("normal_force_magnitude", 9.81)),
                     )
                 )
             else:

@@ -56,3 +56,31 @@ def test_simulation_energy_profile_is_tracked():
     assert result.steps
     assert len(result.conserved_energy) == 10
     assert all(len(snapshot) == 2 for snapshot in result.steps)
+
+
+def test_collision_detection():
+    simulation = Simulation(timestep=0.01, method="rk4", enable_collisions=True)
+    simulation.gravity = Vector3(0, 0, 0)  # No gravity for collision test
+
+    # Create two bodies that will collide
+    body_a = create_body(
+        identifier="ball-a",
+        mass=1.0,
+        position=[0, 0, 0],
+        velocity=[1, 0, 0],  # Moving towards body_b
+        radius=0.5,
+        restitution=0.8
+    )
+    body_b = create_body(
+        identifier="ball-b",
+        mass=1.0,
+        position=[1.5, 0, 0],  # Close enough to collide
+        velocity=[-1, 0, 0],  # Moving towards body_a
+        radius=0.5,
+        restitution=0.8
+    )
+    simulation.add_bodies([body_a, body_b])
+
+    result = simulation.step(steps=50)
+    assert result.collision_count > 0  # Should have detected collisions
+    assert len(result.steps) == 50

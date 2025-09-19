@@ -6,7 +6,7 @@ from typing import List
 from fastapi import APIRouter
 from pydantic import BaseModel, Field, validator
 
-from ....physics.analytics import projectile_motion
+from physics.analytics import projectile_motion
 
 router = APIRouter(prefix="/projectile", tags=["projectile"])
 
