@@ -5,8 +5,8 @@ from typing import List, Literal, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel, Field, validator
 
-from ....physics.simulations import Simulation, SimulationResult, create_body
-from ....physics.vector import Vector3
+from physics.simulations import Simulation, SimulationResult, create_body
+from physics.vector import Vector3
 
 router = APIRouter(prefix="/simulation", tags=["simulation"])
 

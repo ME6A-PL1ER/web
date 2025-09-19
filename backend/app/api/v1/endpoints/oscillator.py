@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
-from ....physics.analytics import damped_oscillator
+from physics.analytics import damped_oscillator
 
 router = APIRouter(prefix="/oscillator", tags=["oscillator"])
 
