@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, Literal, Optional
 
 from fastapi import APIRouter
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from physics.simulations import Simulation, SimulationResult, create_body
 from physics.vector import Vector3
@@ -29,14 +29,15 @@ class ForcePayload(BaseModel):
 class BodyPayload(BaseModel):
     identifier: str
     mass: float = Field(..., gt=0)
-    position: List[float] = Field(..., min_items=2, max_items=3)
-    velocity: List[float] = Field(..., min_items=2, max_items=3)
+    position: List[float] = Field(..., min_length=2, max_length=3)
+    velocity: List[float] = Field(..., min_length=2, max_length=3)
     forces: Optional[List[ForcePayload]] = None
     radius: float = Field(default=1.0, gt=0)
     restitution: float = Field(default=0.5, ge=0, le=1)
     friction: float = Field(default=0.0, ge=0)
 
-    @validator("identifier")
+    @field_validator("identifier")
+    @classmethod
     def validate_identifier(cls, value: str) -> str:
         if not value:
             raise ValueError("Identifier cannot be empty")
@@ -51,7 +52,8 @@ class SimulationRequest(BaseModel):
     bodies: List[BodyPayload]
     enable_collisions: bool = Field(default=False)
 
-    @validator("bodies")
+    @field_validator("bodies")
+    @classmethod
     def validate_bodies(cls, value: List[BodyPayload]) -> List[BodyPayload]:
         if not value:
             raise ValueError("At least one body must be provided")
@@ -98,7 +100,7 @@ def run_simulation(payload: SimulationRequest) -> SimulationResponse:
     simulation.gravity = Vector3.from_iterable(payload.gravity)
 
     for body_payload in payload.bodies:
-        forces = [force.dict(exclude_none=True) for force in body_payload.forces] if body_payload.forces else None
+        forces = [force.model_dump(exclude_none=True) for force in body_payload.forces] if body_payload.forces else None
         body = create_body(
             identifier=body_payload.identifier,
             mass=body_payload.mass,
