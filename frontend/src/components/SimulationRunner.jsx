@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import TrajectoryPlot from './TrajectoryPlot.jsx';
 import EnhancedTrajectoryPlot from './EnhancedTrajectoryPlot.jsx';
 import SimulationAnimation from './SimulationAnimation.jsx';
+import { HelpTooltip, ErrorMessage, InfoBox, ParameterHelp } from './HelpComponents.jsx';
 import { useApiBase } from '../hooks/useApiBase.js';
 
 const initialBodies = [
@@ -59,6 +60,12 @@ const SimulationRunner = () => {
     } else {
       setSettings((prev) => ({ ...prev, [name]: Number(value) }));
     }
+    // Clear error when user makes changes
+    if (error) setError(null);
+  };
+
+  const dismissError = () => {
+    setError(null);
   };
 
   const updateBody = (index, field, value) => {
@@ -197,41 +204,58 @@ const SimulationRunner = () => {
 
   return (
     <div className="simulation">
+      <InfoBox type="tip" title="Simulation Tips">
+        Start with small time steps (0.01-0.02s) and fewer steps (100-200) for quick experiments. 
+        Enable collisions to see realistic body interactions. Use RK4 for accuracy or Euler for speed.
+      </InfoBox>
+      
       <form className="form" onSubmit={runSimulation}>
         <h3>Multi-body Simulation</h3>
         <div className="grid-two">
-          <label>
-            Time step (s)
-            <input type="number" step="0.001" name="timestep" value={settings.timestep} onChange={handleSettingChange} />
-          </label>
-          <label>
-            Steps
-            <input type="number" name="steps" min="1" max="2000" value={settings.steps} onChange={handleSettingChange} />
-          </label>
-          <label>
-            Integrator
-            <select name="method" value={settings.method} onChange={handleSettingChange}>
-              <option value="rk4">Runge–Kutta 4</option>
-              <option value="euler">Euler</option>
-            </select>
-          </label>
-          <label>
-            Gravity X
-            <input type="number" step="0.1" name="gravityX" value={settings.gravityX} onChange={handleSettingChange} />
-          </label>
-          <label>
-            Gravity Y
-            <input type="number" step="0.1" name="gravityY" value={settings.gravityY} onChange={handleSettingChange} />
-          </label>
-          <label>
-            <input 
-              type="checkbox" 
-              name="enableCollisions" 
-              checked={settings.enableCollisions} 
-              onChange={handleSettingChange} 
-            />
-            Enable Collisions
-          </label>
+          <HelpTooltip content={ParameterHelp.timestep}>
+            <label>
+              Time step (s)
+              <input type="number" step="0.001" name="timestep" value={settings.timestep} onChange={handleSettingChange} />
+            </label>
+          </HelpTooltip>
+          <HelpTooltip content={ParameterHelp.steps}>
+            <label>
+              Steps
+              <input type="number" name="steps" min="1" max="2000" value={settings.steps} onChange={handleSettingChange} />
+            </label>
+          </HelpTooltip>
+          <HelpTooltip content={ParameterHelp.method}>
+            <label>
+              Integrator
+              <select name="method" value={settings.method} onChange={handleSettingChange}>
+                <option value="rk4">Runge–Kutta 4</option>
+                <option value="euler">Euler</option>
+              </select>
+            </label>
+          </HelpTooltip>
+          <HelpTooltip content={ParameterHelp.gravity}>
+            <label>
+              Gravity X
+              <input type="number" step="0.1" name="gravityX" value={settings.gravityX} onChange={handleSettingChange} />
+            </label>
+          </HelpTooltip>
+          <HelpTooltip content={ParameterHelp.gravity}>
+            <label>
+              Gravity Y
+              <input type="number" step="0.1" name="gravityY" value={settings.gravityY} onChange={handleSettingChange} />
+            </label>
+          </HelpTooltip>
+          <HelpTooltip content={ParameterHelp.collisions}>
+            <label>
+              <input 
+                type="checkbox" 
+                name="enableCollisions" 
+                checked={settings.enableCollisions} 
+                onChange={handleSettingChange} 
+              />
+              Enable Collisions
+            </label>
+          </HelpTooltip>
         </div>
         <div className="body-list">
           {bodies.map((body, index) => (
@@ -239,7 +263,12 @@ const SimulationRunner = () => {
               <div className="body-header">
                 <h4>{body.identifier}</h4>
                 {bodies.length > 1 && (
-                  <button type="button" onClick={() => removeBody(index)} className="ghost">
+                  <button 
+                    type="button" 
+                    onClick={() => removeBody(index)} 
+                    className="ghost"
+                    aria-label={`Remove ${body.identifier} body`}
+                  >
                     Remove
                   </button>
                 )}
@@ -356,14 +385,23 @@ const SimulationRunner = () => {
           ))}
         </div>
         <div className="actions">
-          <button type="button" onClick={addBody} className="ghost">
+          <button 
+            type="button" 
+            onClick={addBody} 
+            className="ghost"
+            aria-label="Add a new body to the simulation"
+          >
             Add body
           </button>
-          <button type="submit" disabled={loading}>
+          <button 
+            type="submit" 
+            disabled={loading}
+            aria-label={loading ? 'Simulation running, please wait' : 'Start physics simulation'}
+          >
             {loading ? 'Running…' : 'Run simulation'}
           </button>
         </div>
-        {error && <p className="error">{error}</p>}
+        {error && <ErrorMessage error={error} onDismiss={dismissError} />}
       </form>
 
       {result && (

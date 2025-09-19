@@ -1,0 +1,26 @@
+# Deploy to Railway.app
+# This file configures the deployment settings for Railway
+
+[build]
+  builder = "nixpacks"
+
+[deploy]
+  restartPolicyType = "ON_FAILURE"
+  restartPolicyMaxRetries = 10
+
+[healthcheck]
+  path = "/api/v1/health"
+  port = 8000
+  initialDelaySeconds = 30
+  periodSeconds = 10
+  timeoutSeconds = 5
+  failureThreshold = 3
+
+[environment]
+  PYTHONPATH = "/app"
+  LOG_LEVEL = "info"
+  PORT = "8000"
+
+[scaling]
+  minInstances = 1
+  maxInstances = 3
