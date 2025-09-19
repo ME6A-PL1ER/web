@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+# Import patch before any pydantic imports
+from . import pydantic_patch
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
